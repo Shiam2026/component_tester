@@ -57,14 +57,31 @@ void handleData()
 
     int adcValue = analogRead(BATTERY_PIN);
     float pinVoltage = (adcValue / 1023.0) * 3.3;
-    float batteryVoltage = pinVoltage * 2.0; // দুটি 10k ডিভাইডারের জন্য
+    float batteryVoltage = pinVoltage * 11.0; // 100k ও 10k ডিভাইডারের জন্য
 
-    int percent = map(batteryVoltage * 100, 320, 420, 0, 100);
+    int percent = 0;
+
+    // স্মার্ট ব্যাটারি ডিটেকশন (ভোল্টেজ দেখে ব্যাটারি চেনা)
+    if (batteryVoltage > 8.0)
+    {
+        // যদি ভোল্টেজ ৮ ভোল্টের বেশি হয়, তবে এটি 12V সোলার/লেড-এসিড ব্যাটারি
+        // সোলার ব্যাটারির চার্জ (12.7V = 100%, 11.5V = 0%)
+        percent = map(batteryVoltage * 100, 1150, 1270, 0, 100);
+    }
+    else if (batteryVoltage > 1.0)
+    {
+        // যদি ভোল্টেজ ১ থেকে ৮ ভোল্টের মাঝে হয়, তবে এটি 3.7V ব্যাটারি
+        // 3.7V ব্যাটারির চার্জ (4.2V = 100%, 3.2V = 0%)
+        percent = map(batteryVoltage * 100, 320, 420, 0, 100);
+    }
+
+    // পার্সেন্টেজ যেন 100 এর বেশি বা 0 এর কম না দেখায়
     if (percent > 100)
         percent = 100;
     if (percent < 0)
         percent = 0;
 
+    // JSON ডেটা তৈরি করে ওয়েবপেজে পাঠানো
     String json = "{\"voltage\":\"" + String(batteryVoltage, 2) + "\", \"percent\":" + String(percent) + "}";
     server.send(200, "application/json", json);
 }
