@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Component Tester</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h2>🛠️ ESP8266 Smart Tester</h2>
+
+    <div class="card setup-card">
+      <p>আপনার ESP8266-এর IP Address লিখুন:</p>
+      <input type="text" id="ipAddress" placeholder="যেমন: 192.168.1.15" />
+      <button onclick="connectESP()">Connect</button>
+      <p id="connectionStatus" style="color: #ff9800">কানেক্ট করা হয়নি</p>
+    </div>
+
+    <div class="card">
+      <h3 style="color: #00bcd4">🔋 3.7V ব্যাটারি স্ট্যাটাস</h3>
+      <h1 id="volt">-- V</h1>
+      <h2 id="percent" style="color: #ffeb3b">-- %</h2>
+    </div>
+
+    <div class="card">
+      <h3 style="color: #ff9800">🔌 কম্পোনেন্ট টেস্ট (D1 Pin)</h3>
+      <p>ট্রানজিস্টর, বাজার বা LED টেস্ট করতে বাটন চাপুন</p>
+      <button class="test-btn" onclick="toggleTest()">
+        Toggle Power (ON/OFF)
+      </button>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
