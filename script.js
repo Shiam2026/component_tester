@@ -1,59 +1,70 @@
 let espIP = "";
 let dataInterval;
 
+// ১. পেজ লোড হওয়ার সাথে সাথে সেভ করা আইপি খুঁজবে
+window.onload = () => {
+    const savedIP = localStorage.getItem("savedESP_IP");
+    if(savedIP) {
+        document.getElementById('ipAddress').value = savedIP; // বক্সে আইপি বসিয়ে দেবে
+        connectESP(); // অটোমেটিক কানেক্ট করবে
+    }
+};
+
 function connectESP() {
-  const ipInput = document.getElementById("ipAddress").value.trim();
-  if (ipInput === "") {
-    alert("দয়া করে IP Address দিন!");
-    return;
-  }
+    const ipInput = document.getElementById('ipAddress').value.trim();
+    if (ipInput === "") {
+        alert("দয়া করে IP Address দিন!");
+        return;
+    }
+    
+    // ২. নতুন আইপি দিলে তা ব্রাউজারে সেভ করে রাখবে
+    localStorage.setItem("savedESP_IP", ipInput);
+    
+    // IP Address সেট করা হলো
+    espIP = `http://${ipInput}`;
+    document.getElementById('connectionStatus').innerText = "কানেক্টিং...";
+    document.getElementById('connectionStatus').style.color = "#00bcd4";
 
-  // IP Address সেট করা হলো
-  espIP = `http://${ipInput}`;
-  document.getElementById("connectionStatus").innerText = "কানেক্টিং...";
-  document.getElementById("connectionStatus").style.color = "#00bcd4";
+    // আগের কোনো ইন্টারভ্যাল থাকলে ক্লিয়ার করা
+    clearInterval(dataInterval);
 
-  // আগের কোনো ইন্টারভ্যাল থাকলে ক্লিয়ার করা
-  clearInterval(dataInterval);
+    // প্রথমবার ডেটা এনে চেক করা
+    fetchData();
 
-  // প্রথমবার ডেটা এনে চেক করা
-  fetchData();
-
-  // এরপর প্রতি ১ সেকেন্ডে ডেটা আনা হবে
-  dataInterval = setInterval(fetchData, 1000);
+    // এরপর প্রতি ১ সেকেন্ডে ডেটা আনা হবে
+    dataInterval = setInterval(fetchData, 1000);
 }
 
 function fetchData() {
-  if (!espIP) return;
+    if (!espIP) return;
 
-  fetch(`${espIP}/data`)
-    .then((response) => response.json())
-    .then((data) => {
-      document.getElementById("volt").innerText = data.voltage + " V";
-      document.getElementById("percent").innerText = data.percent + " %";
-      document.getElementById("connectionStatus").innerText = "🟢 কানেক্টেড!";
-      document.getElementById("connectionStatus").style.color = "#4CAF50";
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      document.getElementById("connectionStatus").innerText =
-        "🔴 কানেকশন ফেইল্ড! IP চেক করুন।";
-      document.getElementById("connectionStatus").style.color = "#f44336";
-    });
+    fetch(`${espIP}/data`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('volt').innerText = data.voltage + ' V';
+            document.getElementById('percent').innerText = data.percent + ' %';
+            document.getElementById('connectionStatus').innerText = "🟢 কানেক্টেড!";
+            document.getElementById('connectionStatus').style.color = "#4CAF50";
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+            document.getElementById('connectionStatus').innerText = "🔴 কানেকশন ফেইল্ড! IP চেক করুন।";
+            document.getElementById('connectionStatus').style.color = "#f44336";
+        });
 }
 
 function toggleTest() {
-  if (!espIP) {
-    alert("আগে IP Address দিয়ে Connect করুন!");
-    return;
-  }
+    if (!espIP) {
+        alert("আগে IP Address দিয়ে Connect করুন!");
+        return;
+    }
 
-  fetch(`${espIP}/toggle`)
-    .then((response) => {
-      if (!response.ok) alert("কমান্ড পাঠাতে সমস্যা হয়েছে!");
-    })
-    .catch((error) => {
-      console.error("Toggle error:", error);
-      alert("কানেকশন এরর!");
-    });
+    fetch(`${espIP}/toggle`)
+        .then(response => {
+            if(!response.ok) alert("কমান্ড পাঠাতে সমস্যা হয়েছে!");
+        })
+        .catch(error => {
+            console.error("Toggle error:", error);
+            alert("কানেকশন এরর!");
+        });
 }
